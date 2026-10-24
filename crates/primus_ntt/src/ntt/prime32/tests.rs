@@ -235,6 +235,7 @@ fn test_cross_check_against_uint_table() {
 
 /// Verify pre-expanded root layout matches the AVX lane patterns
 /// (tests the builder directly, no SIMD hardware needed).
+#[cfg(target_arch = "x86_64")]
 #[test]
 fn test_builder_lane_order() {
     // Use a small N=64 and a known identity-like root pattern.

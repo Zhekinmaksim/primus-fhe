@@ -109,6 +109,7 @@ pub struct U64NttTable {
     #[cfg(target_arch = "x86_64")]
     inv_roots_precon52: AVec<u64>,
 
+    #[cfg_attr(not(target_arch = "x86_64"), allow(dead_code))]
     backend: U64Backend,
 }
 
@@ -362,12 +363,12 @@ impl NttTable for U64NttTable {
         // Barrett-32 precons for scalar fast path (and reused by AVX-512 DQ-32
         // inverse).  Built unconditionally when q is small enough.
         let roots_precon32 = if low_q {
-            super::avx512::precompute::build_barrett_vector(&roots, 32, q)
+            super::precompute::build_barrett_vector(&roots, 32, q)
         } else {
             AVec::with_capacity(64, 0)
         };
         let inv_roots_precon32 = if low_q {
-            super::avx512::precompute::build_barrett_vector(&inv_roots, 32, q)
+            super::precompute::build_barrett_vector(&inv_roots, 32, q)
         } else {
             AVec::with_capacity(64, 0)
         };
@@ -456,10 +457,10 @@ impl NttTable for U64NttTable {
             inv_roots_precon52,
         ) = if use_avx512 {
             let ar = super::avx512::precompute::build_avx512_root_powers(n, &roots);
-            let arp32 = super::avx512::precompute::build_barrett_vector(&ar, 32, q);
-            let arp52 = super::avx512::precompute::build_barrett_vector(&ar, 52, q);
-            let arp64 = super::avx512::precompute::build_barrett_vector(&ar, 64, q);
-            let irp52 = super::avx512::precompute::build_barrett_vector(&inv_roots, 52, q);
+            let arp32 = super::precompute::build_barrett_vector(&ar, 32, q);
+            let arp52 = super::precompute::build_barrett_vector(&ar, 52, q);
+            let arp64 = super::precompute::build_barrett_vector(&ar, 64, q);
+            let irp52 = super::precompute::build_barrett_vector(&inv_roots, 52, q);
             (ar, arp32, arp52, arp64, irp52)
         } else {
             (
